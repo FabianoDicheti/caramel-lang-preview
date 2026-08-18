@@ -34,8 +34,9 @@ jobs:
           - { os: ubuntu-22.04,     platform: linux-x86_64, deb: true }
           - { os: ubuntu-22.04-arm, platform: linux-arm64,  deb: true, optional: true }
           - { os: macos-14,         platform: macos-arm64 }
-          # Intel macOS runners are being retired; treat them as best-effort.
-          - { os: macos-13,         platform: macos-x86_64, optional: true }
+          # No Intel macOS entry: those runners are retired and the job simply
+          # sits queued forever, which blocks the whole release. Intel Mac users
+          # get the source-build fallback in install.sh.
     steps:
       - uses: actions/checkout@v7
         with:
