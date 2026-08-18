@@ -1,0 +1,137 @@
+# Builds the prebuilt binaries that install.sh downloads.
+#
+# Tag a release and this publishes caramel-<tag>-<platform>.tar.gz (plus .deb
+# on Linux) to the matching GitHub Release:
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# NOTE: install.sh can only fetch these assets if the repository is public.
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build and publish (e.g. v0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    # The arm64 Linux runner is not available on every plan; a missing runner
+    # must not sink the whole release.
+    continue-on-error: ${{ matrix.optional || false }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-22.04,     platform: linux-x86_64, deb: true }
+          - { os: ubuntu-22.04-arm, platform: linux-arm64,  deb: true, optional: true }
+          - { os: macos-14,         platform: macos-arm64 }
+          # Intel macOS runners are being retired; treat them as best-effort.
+          - { os: macos-13,         platform: macos-x86_64, optional: true }
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Resolve tag
+        id: v
+        shell: bash
+        run: echo "tag=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      # -static-libstdc++/-static-libgcc keeps the Linux tarball usable on
+      # distributions older than the runner's toolchain.
+      - name: Configure
+        shell: bash
+        env:
+          TAG: ${{ steps.v.outputs.tag }}
+        run: |
+          args=(-S . -B build -DCMAKE_BUILD_TYPE=Release
+                -DCARAMEL_PACKAGE_VERSION="${TAG#v}")
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            args+=("-DCMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -static-libgcc")
+          fi
+          cmake "${args[@]}"
+
+      - name: Build
+        run: cmake --build build -j 4
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Package
+        shell: bash
+        working-directory: build
+        run: |
+          TAG="${{ steps.v.outputs.tag }}"
+          cpack -G TGZ
+          mv caramel-*.tar.gz "caramel-$TAG-${{ matrix.platform }}.tar.gz"
+          if [ "${{ matrix.deb }}" = "true" ]; then
+            cpack -G DEB
+            mv caramel*.deb "caramel-$TAG-${{ matrix.platform }}.deb"
+          fi
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: caramel-${{ matrix.platform }}
+          path: |
+            build/caramel-*.tar.gz
+            build/caramel-*.deb
+          if-no-files-found: error
+
+  extension:
+    name: vscode extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+      - name: Package .vsix
+        working-directory: editors/vscode
+        shell: bash
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          npx --yes @vscode/vsce package --no-dependencies \
+            --out "caramel-vscode-$TAG.vsix"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: caramel-vscode
+          path: editors/vscode/*.vsix
+          if-no-files-found: error
+
+  publish:
+    name: publish release
+    needs: [build, extension]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum caramel-*.tar.gz caramel-*.deb caramel-*.vsix 2>/dev/null > SHA256SUMS.txt; cat SHA256SUMS.txt
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          gh release create "$TAG" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Caramel $TAG" \
+            --generate-notes \
+            || gh release upload "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber

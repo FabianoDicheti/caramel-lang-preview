@@ -1,0 +1,12 @@
+# Small Caramel smoke test.
+# Computes relu(matmul(a, b) + bias), then sums the activated tensor.
+crml::quantmax=1000;
+crml::quantmin=-1000;
+crml::quantres=0;
+
+calc::lambda_flow smoke(a, b, bias) {
+    a b matmul product =
+    product bias elemwise_add shifted =
+    shifted relu activated =
+    activated tensor_sum total =
+} return activated, total;

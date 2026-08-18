@@ -1,0 +1,155 @@
+{
+  "name": "caramel-lang",
+  "displayName": "Caramel Language",
+  "description": "Syntax highlighting, snippets, completions and live linting for the Caramel tensor language (.crml)",
+  "version": "0.1.0",
+  "publisher": "caramel",
+  "license": "SEE LICENSE IN README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FabianoDicheti/caramel-lang-preview.git"
+  },
+  "icon": "images/icon_256.png",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Linters"
+  ],
+  "keywords": [
+    "caramel",
+    "crml",
+    "tensor",
+    "quantization",
+    "ml"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:caramel"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "caramel",
+        "aliases": [
+          "Caramel",
+          "caramel"
+        ],
+        "extensions": [
+          ".crml"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./images/icon_256.png",
+          "dark": "./images/icon_256.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "caramel",
+        "scopeName": "source.caramel",
+        "path": "./syntaxes/caramel.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "caramel",
+        "path": "./snippets/caramel.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "caramel-icons",
+        "label": "Caramel Icons",
+        "path": "./caramel-icon-theme.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "caramel.runFile",
+        "title": "Caramel: Run Current File",
+        "icon": "$(play)"
+      },
+      {
+        "command": "caramel.lintFile",
+        "title": "Caramel: Lint Current File"
+      },
+      {
+        "command": "caramel.showOutput",
+        "title": "Caramel: Show Output"
+      }
+    ],
+    "menus": {
+      "editor/title/run": [
+        {
+          "command": "caramel.runFile",
+          "when": "resourceLangId == caramel",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "caramel.runFile",
+          "when": "resourceLangId == caramel",
+          "group": "caramel"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "caramel.runFile",
+        "key": "ctrl+alt+r",
+        "mac": "cmd+alt+r",
+        "when": "resourceLangId == caramel"
+      }
+    ],
+    "configuration": {
+      "title": "Caramel",
+      "properties": {
+        "caramel.runPath": {
+          "type": "string",
+          "default": "caramel-run",
+          "description": "Path to the caramel-run executable. Leave as 'caramel-run' if it is on your PATH."
+        },
+        "caramel.lintPath": {
+          "type": "string",
+          "default": "caramel-lint",
+          "description": "Path to the caramel-lint executable. Leave as 'caramel-lint' if it is on your PATH."
+        },
+        "caramel.lint.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Underline errors and warnings from caramel-lint in the editor."
+        },
+        "caramel.lint.run": {
+          "type": "string",
+          "enum": [
+            "onType",
+            "onSave"
+          ],
+          "default": "onType",
+          "description": "Whether to lint as you type or only when the file is saved."
+        },
+        "caramel.run.flow": {
+          "type": "string",
+          "default": "",
+          "description": "Flow name passed to caramel-run --flow. Empty means let caramel-run choose."
+        },
+        "caramel.run.inputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Inputs passed to caramel-run, one --in argument each, e.g. \"x=2x2:1,2,3,4\"."
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0"
+  }
+}

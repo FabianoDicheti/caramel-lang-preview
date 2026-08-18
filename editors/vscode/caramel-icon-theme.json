@@ -1,0 +1,11 @@
+{
+  "iconDefinitions": {
+    "caramel-icon": {
+      "iconPath": "./images/icon_256.png"
+    }
+  },
+  "fileExtensions": {
+    "crml": "caramel-icon"
+  },
+  "file": "caramel-icon"
+}

@@ -1,0 +1,19 @@
+# Build output
+/build/
+/build-*/
+*.o
+*.a
+compile_commands.json
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# Editor / OS
+*.swp
+.DS_Store
+
+# VS Code extension build output
+editors/vscode/node_modules/
+editors/vscode/*.vsix

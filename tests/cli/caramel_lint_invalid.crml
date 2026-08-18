@@ -1,0 +1,7 @@
+crml::quantmax=100;
+crml::quantmin=-100;
+crml::quantres=2;
+
+calc::lambda_flow broken(a, unused) {
+  a missing add result =
+} return result;

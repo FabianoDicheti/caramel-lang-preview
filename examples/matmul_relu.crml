@@ -1,0 +1,14 @@
+# Example Caramel program: a tiny linear layer (matmul + bias + relu).
+# Run with:
+#   caramel-run examples/matmul_relu.crml \
+#     --in x=2x2:1,2,3,4 --in w=2x2:5,6,7,8 --in bias=2x2:0,0,-100,0
+# Expected: matmul(x,w)=[[19,22],[43,50]]; +bias; relu -> [[19,22],[0,50]]
+crml::quantmax=1000;
+crml::quantmin=-1000;
+crml::quantres=0;
+
+calc::lambda_flow layer(x, w, bias) {
+    x w matmul p =
+    p bias elemwise_add s =
+    s relu result =
+} return result;

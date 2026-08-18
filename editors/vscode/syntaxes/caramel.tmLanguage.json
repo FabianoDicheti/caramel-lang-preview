@@ -1,0 +1,159 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Caramel",
+  "scopeName": "source.caramel",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#decorators" },
+    { "include": "#namespaces" },
+    { "include": "#definitions" },
+    { "include": "#keywords" },
+    { "include": "#constants" },
+    { "include": "#directives" },
+    { "include": "#types" },
+    { "include": "#combinators" },
+    { "include": "#primitives" },
+    { "include": "#stackops" },
+    { "include": "#wordops" },
+    { "include": "#numbers" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.caramel",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.caramel",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        { "name": "constant.character.escape.caramel", "match": "\\\\." }
+      ]
+    },
+    "decorators": {
+      "patterns": [
+        {
+          "name": "meta.decorator.caramel",
+          "match": "(@)([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "punctuation.definition.decorator.caramel" },
+            "2": { "name": "entity.name.function.decorator.caramel" }
+          }
+        }
+      ]
+    },
+    "namespaces": {
+      "patterns": [
+        {
+          "comment": "identifier immediately followed by :: (crml::, in::, calc::, device::, receiver::, memory:: ...)",
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(::)",
+          "captures": {
+            "1": { "name": "entity.name.namespace.caramel" },
+            "2": { "name": "punctuation.separator.namespace.caramel" }
+          }
+        }
+      ]
+    },
+    "definitions": {
+      "patterns": [
+        {
+          "name": "storage.type.definition.caramel",
+          "match": "\\b(lambda_flow|lambda_symphony|lambda_calculator|channels)\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.caramel",
+          "match": "\\b(return|lambda|end)\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.caramel",
+          "match": "\\b(true|false|unknown)\\b"
+        }
+      ]
+    },
+    "directives": {
+      "patterns": [
+        {
+          "comment": "quantization + autodiff + routing directive keys",
+          "name": "keyword.other.directive.caramel",
+          "match": "\\b(quantmax|quantmin|quantres|quantrange|quant|decimal_places|quantmax_fwd|quantmin_fwd|quantres_fwd|quantmax_grad|quantmin_grad|quantres_grad|enable_autodiff|autodiff|gradient_checkpointing|checkpoint_every|routing_policy|register_backward|backpropagation|device|fpga|cpu|write)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.caramel",
+          "match": "\\b(number|tensor|text|string|dictionary)\\b"
+        }
+      ]
+    },
+    "combinators": {
+      "patterns": [
+        {
+          "name": "support.function.combinator.caramel",
+          "match": "\\b(identity|kestrel|kite|mockingbird|bluebird|cardinal|starling|thrush|warbler|owl|compose|bluebird_prime|blackbird|psi|phoenix|vireo|ycombinator)\\b"
+        }
+      ]
+    },
+    "primitives": {
+      "patterns": [
+        {
+          "comment": "tensor/ML primitive ops",
+          "name": "support.function.builtin.caramel",
+          "match": "\\b(matmul|conv1d|conv2d|conv3d|elemwise_add|elemwise_sub|elemwise_mul|elemwise_div|scalar_mul|relu|sigmoid|tanh|softmax|gelu|silu|softplus|maxpool2d|avgpool2d|adaptive_avgpool2d|batchnorm|layernorm|instancenorm|groupnorm|transpose|reshape|concat|split|tensor_sum|tensor_mean|tensor_max|tensor_min|argmax|determinant|inverse|eigendecomp|svd|qr|cholesky|lu|fft|ifft|fft2d|scaled_dot_attention|multihead_attention|selective_scan|s4_layer|cross_entropy|clip_gradient|exp|sqrt|embedding_lookup|tensor\\.init|txt\\.read|get_timestamp)\\b"
+        }
+      ]
+    },
+    "stackops": {
+      "patterns": [
+        {
+          "name": "keyword.operator.stack.caramel",
+          "match": "(?<![\\w-])(dup|swap|drop|over|-rot|rot)\\b"
+        }
+      ]
+    },
+    "wordops": {
+      "patterns": [
+        {
+          "comment": "arithmetic + logic operator words",
+          "name": "keyword.operator.word.caramel",
+          "match": "\\b(add|sub|mul|div|and|or|not|xor)\\b"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.caramel",
+          "match": "(?<![\\w.])-?\\d+(\\.\\d+)?\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.comparison.caramel",
+          "match": "(==|!=|>=|<=|>|<)"
+        },
+        {
+          "name": "keyword.operator.assignment.caramel",
+          "match": "="
+        }
+      ]
+    }
+  }
+}

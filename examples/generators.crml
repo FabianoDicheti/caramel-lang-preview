@@ -1,0 +1,20 @@
+# Tensor constructors (host-side generators).
+# RPN postfix form, usable in `in::name = <gen>;` initializer position.
+# Run:  caramel-run examples/generators.crml
+crml::quantmax=1000;
+crml::quantmin=-1000;
+crml::quantres=0;
+
+in::z = 3 3 zeros;                 # 3x3 all zeros
+in::o = 2 2 ones;                  # 2x2 all ones
+in::f = 2 2 7 full;                # 2x2 filled with 7
+in::i = 4 eye;                     # 4x4 identity
+in::d = [2,3,5] diag;              # 3x3 diagonal(2,3,5)
+in::r = 6 range;                   # vector [0,1,2,3,4,5]
+in::b = 8 1 0 1 band;              # 8x8 lower-bidiagonal (lower=1, upper=0), fill 1
+in::t = 5 1 2 1 tridiag;           # 5x5 tridiagonal (sub=1, diag=2, super=1)
+in::s = [2,3,5,7,11,13] from_spectrum;  # 6x6 diagonal witness with that spectrum
+in::rnd = 3 3 random;              # 3x3 reproducible pseudo-random (fixed seed)
+
+calc::lambda_flow show(z, o, f, i, d, r, b, t, s, rnd) {
+} return z, o, f, i, d, r, b, t, s, rnd;

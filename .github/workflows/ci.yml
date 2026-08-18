@@ -1,0 +1,50 @@
+# Build + test on every push and pull request. Mirrors what a user installing
+# from source does: no MLIR, plain C++17 toolchain.
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build -j 4
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: Install smoke test
+        shell: bash
+        run: |
+          cmake --install build --prefix "$PWD/stage"
+          "$PWD/stage/bin/caramel-run" "$PWD/stage/share/caramel/examples/matmul_relu.crml" \
+            --flow layer --in x=2x2:1,2,3,4 --in w=2x2:5,6,7,8 --in bias=2x2:0,0,-100,0 \
+            | grep -q 'result : \[2x2\] = \[19, 22, 0, 50\]'
+          echo "install layout verified"
+
+  extension:
+    name: vscode extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+      - name: Package .vsix
+        working-directory: editors/vscode
+        run: npx --yes @vscode/vsce package --no-dependencies --out caramel.vsix
+      - uses: actions/upload-artifact@v7
+        with:
+          name: caramel-vscode-extension
+          path: editors/vscode/caramel.vsix
